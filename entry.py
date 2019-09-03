@@ -6,10 +6,20 @@ import os
 
 root_path = os.path.abspath('.')
 
-with open(root_path + os.path.sep + 'padding_data.yml') as f:
-    padding_data = f.read()
+config_path = root_path + os.path.sep + 'config' + os.path.sep
+
+configs = list(filter(lambda x: '.yml' in x, os.listdir(config_path)))
+
+padding_data = ''
+
+for config in configs:
+    with open(config_path + config) as f:
+        padding_data += f.read()
+
 
 db_config = yaml.load(padding_data, Loader=yaml.FullLoader)
+
+print(db_config)
 
 global_manage.set(db_config)
 

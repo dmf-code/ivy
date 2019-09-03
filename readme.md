@@ -113,5 +113,5 @@ pip install -r requirements.txt
 python entry.py
 ```
 
-![1567489373143](F:\Python\ivy\readme\1567489373143.png)
+![1567489373143](./readme/1567489373143.png)
 

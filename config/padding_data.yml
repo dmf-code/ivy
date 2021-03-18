@@ -1,6 +1,6 @@
 -
-  host: 192.168.3.9
-  port: 9003
+  host: 127.0.0.1
+  port: 3306
   username: root
   password: root
   charset: utf8mb4
@@ -8,18 +8,18 @@
   databases:
     -
       table: faker
-      fields:
-        id: INT NOT NULL AUTO_INCREMENT
-        name: VARCHAR(20) NOT NULL
-        date: timestamp NOT NULL
-        index:
-          - PRIMARY KEY (id)
-        other:
-          - ENGINE=InnoDB
-          - DEFAULT
-          - CHARSET=utf8mb4
+#      fields:
+#        id: INT NOT NULL AUTO_INCREMENT
+#        name: VARCHAR(20) NOT NULL
+#        date: timestamp NOT NULL
+#        index:
+#          - PRIMARY KEY (id)
+#        other:
+#          - ENGINE=InnoDB
+#          - DEFAULT
+#          - CHARSET=utf8mb4
 
-      fill_rule:
+      rules:
         date:
           func: range_date
           start: '2019-07-20'
@@ -28,6 +28,7 @@
           step: HOUR_TO_SECOND
 
         name:
-          func: faker|name
+          func: default
+          value: test
 
       number: 5

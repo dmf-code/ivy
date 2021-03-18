@@ -1,21 +1,24 @@
 # _*_ coding: utf-8 _*_
+from ivy.abstracts.singleton import Singleton
 from sqlalchemy import create_engine
-from ivy.global_manage import global_manage
+from ivy.facade import Facade
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy_utils import database_exists, create_database
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import mapper
 from ivy.functions import funcs
-from ivy.functions.faker_handle import fake
+from ivy.functions.faker import fake
 import copy
 
 
-class DatabaseManage(object):
+class Database(metaclass=Singleton):
     engine = None
+    context = None
 
     def __init__(self):
         self.Base = declarative_base()
         self.session = None
+        self.context = Facade().get('context')
 
     def connect(self, config):
         dsn = 'mysql+pymysql://{}:{}@{}:{}/{}?charset={}'.format(
@@ -31,25 +34,29 @@ class DatabaseManage(object):
             create_database(self.engine.url)
 
     def create_table(self, table_name, fields):
-        indexs = fields.pop('index', None)
+        if fields is None:
+            print('fields is None')
+            return True
+
+        indexes = fields.pop('index', None)
         others = fields.pop('other', None)
         """表名，创建新表"""
-        tb_str = "CREATE TABLE if not exists {} (".format(table_name)
+        table_str = "CREATE TABLE if not exists {} (".format(table_name)
         for key, value in fields.items():
-                tb_str += '{} {},'.format(key, value)
+                table_str += '{} {},'.format(key, value)
 
-        for index in indexs:
-            tb_str += '{},'.format(index)
+        for index in indexes:
+            table_str += '{},'.format(index)
 
-        tb_str = tb_str.rstrip(',') + ')'
+        table_str = table_str.rstrip(',') + ')'
 
         for other in others:
-            tb_str += '{} '.format(other)
+            table_str += '{} '.format(other)
 
-        tb_str = tb_str.rstrip(' ') + ';'
-        if global_manage.debug():
-            print(tb_str)
-        self.engine.execute(tb_str)  # 执行sql语句
+        table_str = table_str.rstrip(' ') + ';'
+        if self.context.debug():
+            print(table_str)
+        self.engine.execute(table_str)  # 执行sql语句
         return True
 
     def get_model(self, name):
@@ -104,7 +111,7 @@ class DatabaseManage(object):
         session = self.get_session()
         model = self.get_model(table_name)
         model_instance = model()
-        print(fill_rule)
+
         for k, v in fill_rule.items():
             copy_value = copy.deepcopy(v)
             func_ = copy_value.pop('func')
@@ -112,9 +119,6 @@ class DatabaseManage(object):
                 insert_value = self.faker_data_handle(func_, **copy_value)
             else:
                 insert_value = self.custom_data_handle(func_, **copy_value)
-            print(insert_value)
+
             setattr(model_instance, k, insert_value)
             session.add(model_instance)
-
-
-database_manage = DatabaseManage()

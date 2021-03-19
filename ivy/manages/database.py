@@ -1,68 +1,75 @@
 # _*_ coding: utf-8 _*_
-from sqlalchemy import create_engine
-from ivy.global_manage import global_manage
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy_utils import database_exists, create_database
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import mapper
+from sqlalchemy.ext.automap import automap_base
+from sqlalchemy import create_engine, MetaData
+from ivy.abstracts.singleton import Singleton
+from sqlalchemy.orm import sessionmaker
+from ivy.functions.faker import fake
 from ivy.functions import funcs
-from ivy.functions.faker_handle import fake
+from ivy.facade import Facade
 import copy
 
 
-class DatabaseManage(object):
+class Database(metaclass=Singleton):
     engine = None
+    context = None
 
     def __init__(self):
         self.Base = declarative_base()
         self.session = None
+        self.context = Facade().get('context')
 
     def connect(self, config):
-        dsn = 'mysql+pymysql://{}:{}@{}:{}/{}?charset={}'.format(
+        # 兼容 mysql8 默认排序规则 utf8mb4_0900_ai_ci
+        # https://forums.mysql.com/read.php?50,677424,677981#msg-677981
+        dsn = 'mysql+mysqlconnector://{}:{}@{}:{}/{}?charset={}&collation={}'.format(
             config['username'],
             config['password'],
             config['host'],
             config['port'],
             config['dbname'],
-            config['charset']
+            config['charset'],
+            'utf8mb4_unicode_ci'
         )
+        # connect_args = {'init_command': "SET @@collation_connection='utf8mb4_unicode_ci'"}
         self.engine = create_engine(dsn)
+        print(self.engine.url)
         if not database_exists(self.engine.url):
             create_database(self.engine.url)
 
     def create_table(self, table_name, fields):
-        indexs = fields.pop('index', None)
+        if fields is None:
+            print('fields is None')
+            return True
+
+        indexes = fields.pop('index', None)
         others = fields.pop('other', None)
         """表名，创建新表"""
-        tb_str = "CREATE TABLE if not exists {} (".format(table_name)
+        table_str = "CREATE TABLE if not exists {} (".format(table_name)
         for key, value in fields.items():
-                tb_str += '{} {},'.format(key, value)
+                table_str += '{} {},'.format(key, value)
 
-        for index in indexs:
-            tb_str += '{},'.format(index)
+        for index in indexes:
+            table_str += '{},'.format(index)
 
-        tb_str = tb_str.rstrip(',') + ')'
+        table_str = table_str.rstrip(',') + ')'
 
         for other in others:
-            tb_str += '{} '.format(other)
+            table_str += '{} '.format(other)
 
-        tb_str = tb_str.rstrip(' ') + ';'
-        if global_manage.debug():
-            print(tb_str)
-        self.engine.execute(tb_str)  # 执行sql语句
+        table_str = table_str.rstrip(' ') + ';'
+        if self.context.debug():
+            print(table_str)
+        self.engine.execute(table_str)  # 执行sql语句
         return True
 
     def get_model(self, name):
-        """根据表名name动态创建并return一个新的model类
-        name:数据库表名
-        engine:create_engine返回的对象，指定要操作的数据库连接，from sqlalchemy import create_engine
-        """
-        self.Base.metadata.reflect(self.engine)
-        table = self.Base.metadata.tables[name]
-        t = type(name, (object,), dict())
-        mapper(t, table)
-        self.Base.metadata.clear()
-        return t
+        metadata = MetaData(bind=self.engine)
+        metadata.reflect(self.engine, only=[name])
+        Base = automap_base(metadata=metadata)
+        Base.prepare()
+        return Base.classes.get(name)
 
     def create_session(self):
         if self.engine is None:
@@ -100,21 +107,15 @@ class DatabaseManage(object):
             res = getattr(fake, func_)(**kwargs)
         return res
 
-    def fill_data(self, fill_rule, table_name):
-        session = self.get_session()
-        model = self.get_model(table_name)
-        model_instance = model()
-        print(fill_rule)
-        for k, v in fill_rule.items():
+    def fill_data(self, rules, table_name):
+        data = {}
+        for k, v in rules.items():
             copy_value = copy.deepcopy(v)
             func_ = copy_value.pop('func')
             if 'faker' in func_:
                 insert_value = self.faker_data_handle(func_, **copy_value)
             else:
                 insert_value = self.custom_data_handle(func_, **copy_value)
-            print(insert_value)
-            setattr(model_instance, k, insert_value)
-            session.add(model_instance)
+            data[k] = insert_value
 
-
-database_manage = DatabaseManage()
+        return data

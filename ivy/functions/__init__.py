@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
-from ivy.functions.date_handle import DateHandle
+from ivy.functions.date import Date
+from ivy.functions.default import Default
 
 funcs = {
-    'range_date': DateHandle().range
+    'range_date': Date().range,
+    'default': Default().default
 }

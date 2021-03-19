@@ -1,5 +1,7 @@
 # _*_ coding: utf-8 _*_
-from ivy.global_manage import global_manage
+from ivy.manages.database import Database
+from ivy.manages.context import Context
+from ivy.facade import Facade
 from ivy.center import Center
 import yaml
 import os
@@ -13,14 +15,16 @@ configs = list(filter(lambda x: '.yml' in x, os.listdir(config_path)))
 padding_data = ''
 
 for config in configs:
-    with open(config_path + config) as f:
+    with open(config_path + config, 'r', encoding='utf-8') as f:
         padding_data += f.read()
 
 
-db_config = yaml.load(padding_data, Loader=yaml.FullLoader)
+database_config = yaml.load(padding_data, Loader=yaml.FullLoader)
 
-print(db_config)
+Facade().set('context', Context())
 
-global_manage.set(db_config)
+Facade().set('database', Database())
+
+Context().set(database_config)
 
 Center().run()

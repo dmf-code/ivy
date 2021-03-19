@@ -1,11 +1,16 @@
 # _*_ coding: utf-8 _*_
-from ivy.database_manage import database_manage
-from ivy.global_manage import global_manage
+from ivy.facade import Facade
+from sqlalchemy import insert
 
 
 class Center(object):
+    context = None
+    database = None
+
     def __init__(self):
-        padding_data = global_manage.get()
+        self.context = Facade().get('context')
+        self.database = Facade().get('database')
+        padding_data = self.context.get()
         for item in padding_data:
             config = {
                 'host': item['host'],
@@ -15,20 +20,26 @@ class Center(object):
                 'charset': item['charset'],
                 'dbname': item['dbname']
             }
-            database_manage.connect(config)
+            self.database.connect(config)
             for database in item['databases']:
-                table_name = database['table']
-                fields = database['fields']
-                fill_rule = database['fill_rule']
-                number = database['number']
-                database_manage.create_table(table_name, fields)
+                table_name = database.get('table', None)
+                fields = database.get('fields', None)
+                rules = database.get('rules', None)
+                number = database.get('number', 0)
+                self.database.create_table(table_name, fields)
+                insert_list = []
+                self.database.create_session()
+                session = self.database.get_session()
                 while number > 0:
-                    database_manage.create_session()
-                    database_manage.get_session()
-                    database_manage.fill_data(fill_rule, table_name)
-                    print(number)
+                    data = self.database.fill_data(rules, table_name)
+                    insert_list.append(data)
                     number -= 1
-                    database_manage.get_session().commit()
+
+                session.execute(
+                    insert(self.database.get_model(table_name)),
+                    insert_list
+                )
+                session.commit()
 
     def run(self):
         pass

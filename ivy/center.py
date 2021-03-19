@@ -1,5 +1,6 @@
 # _*_ coding: utf-8 _*_
 from ivy.facade import Facade
+from sqlalchemy import insert
 
 
 class Center(object):
@@ -26,12 +27,19 @@ class Center(object):
                 rules = database.get('rules', None)
                 number = database.get('number', 0)
                 self.database.create_table(table_name, fields)
+                insert_list = []
+                self.database.create_session()
+                session = self.database.get_session()
                 while number > 0:
-                    self.database.create_session()
-                    self.database.get_session()
-                    self.database.fill_data(rules, table_name)
+                    data = self.database.fill_data(rules, table_name)
+                    insert_list.append(data)
                     number -= 1
-                    self.database.get_session().commit()
+
+                session.execute(
+                    insert(self.database.get_model(table_name)),
+                    insert_list
+                )
+                session.commit()
 
     def run(self):
         pass

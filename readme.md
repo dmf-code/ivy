@@ -8,12 +8,16 @@ ivy是一个配置化的数据填充框架，主要解决的场景
 
 ivy核心思想是解放劳动力，让你能够在不编写或最少写代码的情况下完成填充的任务
 
+代码结构：
 
-#### 对比
-相对 `lkmc2/python-sql-faker` 数据框架来说，更加方便。除去了 `python` 库学习的成本，不用纠结代码的
-编写问题，减少因为不熟悉Python导致的时间浪费。但是配置化后虽然方便使用，但是相对于直接代码编写存在代码朝
-复杂化发展，这也是两个框架不同的定位。各有优劣。 
-
+```markdown
++---config // 批量操作配置文件目录
++---ivy
+|   +---abstracts // 接口类目录
+|   +---functions // 生成随机数的函数目录
+|   +---manages // 具体逻辑实现管理目录
++---readme // 文档目录
+```
 
 #### 要求
 Python3+
@@ -57,7 +61,7 @@ yml的文件都会被执行的哦
           - DEFAULT
           - CHARSET=utf8mb4
 
-      fill_rule:
+      rules:
         date:
           func: range_date
           start: '2019-07-20'
@@ -69,7 +73,7 @@ yml的文件都会被执行的哦
           func: faker|name
 
       number: 5
-
+      chunk: 1
 ```
 
 
@@ -104,6 +108,7 @@ fill_rule: 数据库填充的内容设置
 
 number: 要填充的数量
 
+chunk: 每组批量插入的数量，避免内存溢出
 
 - 填充的规则定义如下
 
@@ -115,6 +120,9 @@ date:
     end: 结束时间
     res_format: 生成的时间格式
     step: 控制时间间隔，具体常量DAY_TO_SECOND，HOUR_TO_SECOND，MINUTE_TO_SECOND,SECOND
+name:
+    func: default
+    value: test
 ```
 
 2. `faker` 库的调用，这里面要直接带上 `faker` 前缀,然后用|来对其进行分割，这里面不允许使用空格。然后后面带上

@@ -26,6 +26,7 @@ class Center(object):
                 fields = database.get('fields', None)
                 rules = database.get('rules', None)
                 number = database.get('number', 0)
+                chunk = database.get('chunk', 100)
                 self.database.create_table(table_name, fields)
                 insert_list = []
                 self.database.create_session()
@@ -33,13 +34,21 @@ class Center(object):
                 while number > 0:
                     data = self.database.fill_data(rules, table_name)
                     insert_list.append(data)
+                    if len(insert_list) == chunk:
+                        session.execute(
+                            insert(self.database.get_model(table_name)),
+                            insert_list
+                        )
+                        session.commit()
+                        insert_list.clear()
                     number -= 1
 
-                session.execute(
-                    insert(self.database.get_model(table_name)),
-                    insert_list
-                )
-                session.commit()
+                if len(insert_list) > 0:
+                    session.execute(
+                        insert(self.database.get_model(table_name)),
+                        insert_list
+                    )
+                    session.commit()
 
     def run(self):
         pass

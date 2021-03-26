@@ -32,3 +32,4 @@
           value: test
 
       number: 100000
+      chunk: 100

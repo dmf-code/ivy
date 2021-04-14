@@ -27,6 +27,8 @@ class Center(object):
                 rules = database.get('rules', None)
                 number = database.get('number', 0)
                 chunk = database.get('chunk', 100)
+                print(number)
+                print(chunk)
                 self.database.create_table(table_name, fields)
                 insert_list = []
                 self.database.create_session()

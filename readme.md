@@ -6,7 +6,7 @@ ivy是一个配置化的数据填充框架，主要解决的场景
 
 采用配置化的模式，使工作更加高效。配置多个主机模拟数据只要在文件配一下，就能够实现你想要的效果。
 
-ivy核心思想是解放劳动力，让你能够在不编写或最少写代码的情况下完成填充的任务
+> 核心思想是解放劳动力，让你能够在不编写或最少写代码的情况下完成填充的任务
 
 代码结构：
 
@@ -26,7 +26,24 @@ Works on Linux, Windows, Mac OSX, BSD
 
 #### 文档
 
-##### padding_data.yml 配置文件（遵循yaml语法）
+##### 自定义填充函数
+在 `functions` 目录下编写相关代码即可。
+
+`__init__.py`
+```python
+# -*- coding: utf-8 -*-
+from ivy.functions.date import Date
+from ivy.functions.default import Default
+
+funcs = {
+    'range_date': Date().range,
+    'default': Default().default
+}
+```
+
+然后编写相关类即可，可参考 `default.py` 文件
+
+##### default.yml 配置文件（遵循yaml语法）
 
 ###### 主要做两个功能：
 
@@ -106,9 +123,9 @@ other: 数据表外层engine这些
 
 fill_rule: 数据库填充的内容设置
 
-number: 要填充的数量
+number: 要填充的总数量
 
-chunk: 每组批量插入的数量，避免内存溢出
+chunk: 每组批量插入的数量，避免内存溢出 （每次插入数量 = number / chunk）
 
 - 填充的规则定义如下
 

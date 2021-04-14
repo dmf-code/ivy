@@ -8,16 +8,16 @@
   databases:
     -
       table: faker
-#      fields:
-#        id: INT NOT NULL AUTO_INCREMENT
-#        name: VARCHAR(20) NOT NULL
-#        date: timestamp NOT NULL
-#        index:
-#          - PRIMARY KEY (id)
-#        other:
-#          - ENGINE=InnoDB
-#          - DEFAULT
-#          - CHARSET=utf8mb4
+      fields:
+        id: INT NOT NULL AUTO_INCREMENT
+        name: VARCHAR(20) NOT NULL
+        date: timestamp NOT NULL
+        index:
+          - PRIMARY KEY (id)
+        other:
+          - ENGINE=InnoDB
+          - DEFAULT
+          - CHARSET=utf8mb4
 
       rules:
         date:

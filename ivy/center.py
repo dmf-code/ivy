@@ -19,7 +19,7 @@ class Center(object):
             for database in item['databases']:
                 table_name = database['table']
                 fields = database['fields']
-                fill_rule = database['fill_rule']
+                fill_rule = database.get('fill_rule', {})
                 number = database['number']
                 database_manage.create_table(table_name, fields)
                 while number > 0:

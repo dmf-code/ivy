@@ -104,7 +104,7 @@ class DatabaseManage(object):
         session = self.get_session()
         model = self.get_model(table_name)
         model_instance = model()
-        print(fill_rule)
+
         for k, v in fill_rule.items():
             copy_value = copy.deepcopy(v)
             func_ = copy_value.pop('func')

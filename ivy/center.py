@@ -37,6 +37,9 @@ class Center(object):
                 insert_list = []
 
                 while number > 0:
+                    if rules is None:
+                        break
+                    
                     data = self.faker(rules)
                     insert_list.append(data)
                     if len(insert_list) == chunk:
@@ -87,6 +90,7 @@ class Center(object):
 
     def faker(self, rules):
         data = {}
+
         for k, v in rules.items():
             copy_value = copy.deepcopy(v)
             func_ = copy_value.pop('func')

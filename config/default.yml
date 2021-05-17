@@ -4,8 +4,9 @@
   password: root
   charset: utf8mb4
   dbname: faker
-  databases:
+  tables:
     - table: news
+      flag: 1
       fields:
         id: INT NOT NULL AUTO_INCREMENT
         created_at: datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
@@ -19,6 +20,7 @@
           - CHARSET=utf8mb4
 
     - table: news_content
+      flag: 2
       fields:
         id: int NOT NULL AUTO_INCREMENT
         news_id: int NOT NULL COMMENT '新闻关联id'

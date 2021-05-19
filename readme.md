@@ -12,8 +12,12 @@ ivy是一个配置化的数据填充框架，主要解决的场景
 
 代码结构：
 
-```markdown
-+---config // 批量操作配置文件目录 +---ivy | +---abstracts // 接口类目录 | +---functions // 生成随机数的函数目录 | +---manages // 具体逻辑实现管理目录
+```text
++---config // 批量操作配置文件目录 
++---ivy 
+| +---abstracts // 接口类目录 
+| +---functions // 生成随机数的函数目录 
+| +---manages // 具体逻辑实现管理目录
 +---readme // 文档目录
 ```
 

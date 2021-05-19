@@ -5,10 +5,8 @@ from sqlalchemy.ext.automap import automap_base
 from sqlalchemy import create_engine, MetaData
 from ivy.abstracts.singleton import Singleton
 from sqlalchemy.orm import sessionmaker
-from ivy.functions.faker import fake
-from ivy.functions import funcs
+from sqlalchemy import insert
 from ivy.facade import Facade
-import copy
 
 
 class Database(metaclass=Singleton):
@@ -48,7 +46,7 @@ class Database(metaclass=Singleton):
         """表名，创建新表"""
         table_str = "CREATE TABLE if not exists {} (".format(table_name)
         for key, value in fields.items():
-                table_str += '{} {},'.format(key, value)
+            table_str += '{} {},'.format(key, value)
 
         for index in indexes:
             table_str += '{},'.format(index)
@@ -87,35 +85,11 @@ class Database(metaclass=Singleton):
             raise Exception('未连接数据库')
         return self.engine
 
-    @staticmethod
-    def custom_data_handle(func_, **kwargs):
-        if funcs.get(func_, None) is None:
-            raise Exception('func is not define')
-        if not kwargs:
-            res = funcs[func_]()
-        else:
-            res = funcs[func_](**kwargs)
-        return res
-
-    @staticmethod
-    def faker_data_handle(func_, **kwargs):
-        if not hasattr(fake, func_):
-            raise Exception('faker module not have this function')
-        if not kwargs:
-            res = getattr(fake, func_)()
-        else:
-            res = getattr(fake, func_)(**kwargs)
-        return res
-
-    def fill_data(self, rules, table_name):
-        data = {}
-        for k, v in rules.items():
-            copy_value = copy.deepcopy(v)
-            func_ = copy_value.pop('func')
-            if 'faker' in func_:
-                insert_value = self.faker_data_handle(func_, **copy_value)
-            else:
-                insert_value = self.custom_data_handle(func_, **copy_value)
-            data[k] = insert_value
-
-        return data
+    def batch_insert(self, table_name, dataset):
+        self.create_session()
+        session = self.get_session()
+        session.execute(
+            insert(self.get_model(table_name)),
+            dataset
+        )
+        session.commit()

@@ -18,7 +18,6 @@ for config in configs:
     with open(config_path + config, 'r', encoding='utf-8') as f:
         padding_data += f.read()
 
-
 database_config = yaml.load(padding_data, Loader=yaml.FullLoader)
 
 Facade().set('context', Context())
@@ -27,4 +26,4 @@ Facade().set('database', Database())
 
 Context().set(database_config)
 
-Center().run()
+Center()

@@ -1,17 +1,36 @@
--
-  host: 127.0.0.1
+- host: 127.0.0.1
   port: 3306
   username: root
   password: root
   charset: utf8mb4
   dbname: faker
-  databases:
-    -
-      table: faker
+  tables:
+    - table: news
+      flag: 1
       fields:
         id: INT NOT NULL AUTO_INCREMENT
-        name: VARCHAR(20) NOT NULL
-        date: timestamp NOT NULL
+        created_at: datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
+        updated_at: datetime DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间'
+        deleted_at: datetime DEFAULT NULL COMMENT '删除时间'
+        index:
+          - PRIMARY KEY (id)
+        other:
+          - ENGINE=InnoDB
+          - DEFAULT
+          - CHARSET=utf8mb4
+
+    - table: news_content
+      flag: 2
+      fields:
+        id: int NOT NULL AUTO_INCREMENT
+        news_id: int NOT NULL COMMENT '新闻关联id'
+        name: varchar(30) DEFAULT '' COMMENT '名称'
+        img: varchar(256) DEFAULT '' COMMENT '文章图片'
+        content: text COMMENT '文章内容'
+        lang: tinyint DEFAULT '1' COMMENT '1.中文 2.英文'
+        created_at: datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
+        updated_at: datetime DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间'
+        deleted_at: datetime DEFAULT NULL COMMENT '删除时间'
         index:
           - PRIMARY KEY (id)
         other:
@@ -20,16 +39,8 @@
           - CHARSET=utf8mb4
 
       rules:
-        date:
-          func: range_date
-          start: '2019-07-20'
-          end: '2019-08-20'
-          res_format: '%Y-%m-%d %H-%M-%S'
-          step: HOUR_TO_SECOND
-
-        name:
+        news_id:
           func: default
-          value: test
-
-      number: 100000
-      chunk: 100
+          value: 1
+      number: 10
+      chunk: 1

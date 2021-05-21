@@ -61,8 +61,8 @@ funcs = {
 
 ```yaml
 
-- host: 192.168.3.9
-  port: 9003
+- host: 127.0.0.1
+  port: 3306
   username: root
   password: root
   charset: utf8mb4
@@ -171,3 +171,4 @@ python entry.py
 4. 效果如下
 
 ![1567489373143](./readme/1567489373143.png)
+

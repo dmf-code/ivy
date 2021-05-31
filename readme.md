@@ -29,7 +29,7 @@ Works on Linux, Windows, Mac OSX, BSD
 
 ### 文档
 
-####  `default.yml` 配置文件（遵循 `yaml` 语法）
+#### `default.yml` 配置文件（遵循 `yaml` 语法）
 
 ##### 主要做两个功能：
 
@@ -105,11 +105,7 @@ Works on Linux, Windows, Mac OSX, BSD
       chunk: 1
 ```
 
-
-
 > 这里面使用数组的形式进行配置，每个数组对应一个服务器地址， 想要填充多个服务器上面的数据库就需要对其进行数组配置
-
-
 
 ##### `host`: 数据库 `ip`
 
@@ -117,15 +113,11 @@ Works on Linux, Windows, Mac OSX, BSD
 host: 127.0.0.1
 ```
 
-
-
 ##### `port`: 数据库端口
 
 ```yaml
 prot: 3306
 ```
-
-
 
 ##### `username`: 数据库用户名
 
@@ -133,15 +125,11 @@ prot: 3306
 username: root
 ```
 
-
-
 ##### `password`: 数据库密码
 
 ```yaml
 password: 数据库密码
 ```
-
-
 
 ##### `charset`: 数据表编码
 
@@ -149,15 +137,11 @@ password: 数据库密码
 charset: utf8mb4
 ```
 
-
-
 ##### `dbname`: 数据库库名
 
 ```yaml
 dbname: faker
 ```
-
-
 
 ##### `tables`: 数据表配置集合
 
@@ -165,15 +149,11 @@ dbname: faker
 tables: 
 ```
 
-
-
 ##### `table`: 数据表名称
 
 ```yaml
 table: news
 ```
-
-
 
 ##### `flag`: 数据表唯一标识（逻辑运算需要）
 
@@ -181,51 +161,41 @@ table: news
 flag: 1-news
 ```
 
-
-
 ##### `fields`: 数据表字段
 
 ```yaml
 fields:
-	id: INT NOT NULL AUTO_INCREMENT
-	created_at: datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
-    updated_at: datetime DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间'
-    deleted_at: datetime DEFAULT NULL COMMENT '删除时间'
+  id: INT NOT NULL AUTO_INCREMENT
+  created_at: datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
+  updated_at: datetime DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间'
+  deleted_at: datetime DEFAULT NULL COMMENT '删除时间'
 ```
-
-
 
 ##### `index`: 数据表索引
 
 ```yaml
-index: 
-    - PRIMARY KEY (id)
+index:
+  - PRIMARY KEY (id)
 ```
-
-
 
 ##### `other`: 数据表 `engine` 一些字段
 
 ```yaml
 other:
-    - ENGINE=InnoDB
-    - DEFAULT
-    - CHARSET=utf8mb4
+  - ENGINE=InnoDB
+  - DEFAULT
+  - CHARSET=utf8mb4
 ```
-
-
 
 ##### `rules`: 数据表数据填充规则
 
 ```yaml
 rules:
-   id:
-     func: id_auto_increment
-     database: faker
-     table: news
+  id:
+    func: id_auto_increment
+    database: faker
+    table: news
 ```
-
-
 
 ##### `lines`: 一组随机规则编排数组
 
@@ -233,23 +203,17 @@ rules:
 lines: [ 1-news, 2-news_content ]
 ```
 
-
-
 ##### `number` 要填充的总数
 
 ```yaml
 number: 10
 ```
 
-
-
 ##### `chunk`: 分组插入每组的数量 （number / chunk）
 
 ```yaml
 chunk: 1
 ```
-
-
 
 #### 自定义填充函数
 
@@ -275,13 +239,9 @@ funcs = {
 
 然后编写相关类即可，可参考 `default.py` 文件
 
-
-
 #### 填充的规则定义如下
 
 1. 自定义的处理函数要在 `ivy/functions/__init__.py` 中定义函数名称，就是用在配置中的 `func` 哦。
-
-
 
 ##### `id_auto_increment`  获取自增 id
 
@@ -291,8 +251,6 @@ database: faker  # 数据库
 table: news  # 数据表
 ```
 
-
-
 ##### `cell_conversion` 跨表数据传输
 
 ```yaml
@@ -300,8 +258,6 @@ func: cell_conversion
 flag: 1-news  # 数据表配置的 flag
 name: id  # 跨表拿取的字段
 ```
-
-
 
 ##### `date_range` 日期范围随机返回
 
@@ -313,8 +269,6 @@ res_format: '%Y-%m-%d'  # 生成的时间格式
 step: DAY_TO_SECOND  # 控制时间间隔，具体常量DAY_TO_SECOND，HOUR_TO_SECOND，MINUTE_TO_SECOND,SECOND
 ```
 
-
-
 ##### `default` 返回自身设置的值
 
 ```yaml
@@ -322,21 +276,15 @@ func: default
 value: test
 ```
 
-
-
 ##### `default_random` 随即返回配置的值
 
 ```yaml
 func: default_random
 array:
-    - 1
-    - 2
-    - 3
+  - 1
+  - 2
+  - 3
 ```
-
-
-
-
 
 2. `faker` 库的调用，这里面要直接带上 `faker` 前缀,然后用|来对其进行分割，这里面不允许使用空格。然后后面带上
    `faker` 库中的函数调用就行了。例如上面例子中，直接使用 `name` 这个函数调用。具体还可以使用什么函数参考 `faker`

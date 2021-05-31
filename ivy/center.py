@@ -43,7 +43,6 @@ class Center(object):
                 BatchService().lines(lines, number, rules, chunk)
 
     def create_tables(self):
-        print(self.configs)
         for config in self.configs:
             dsn = {
                 'host': config['host'],

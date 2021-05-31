@@ -1,9 +1,9 @@
 # _*_ coding: utf-8 _*_
-from ivy.functions.faker import fake
-from ivy.functions import funcs
+from ivy.services.batch_service import BatchService
+from ivy.manages.context import Context
 from ivy.facade import Facade
-from functools import reduce
-import copy
+from ivy.const import Const
+import random
 
 
 class Center(object):
@@ -35,25 +35,15 @@ class Center(object):
                 rules = table.get('rules', None)
                 number = table.get('number', 0)
                 chunk = table.get('chunk', 100)
+                lines = table.get('lines', None)
 
-                insert_list = []
+                if lines is None:
+                    lines = [str(random.randint(1, 100)) + '-' + table_name]
 
-                while number > 0:
-                    if rules is None:
-                        break
-
-                    data = self.faker(rules)
-                    insert_list.append(data)
-                    if len(insert_list) == chunk:
-                        self.database.batch_insert(table_name, insert_list)
-                        insert_list.clear()
-                    number -= 1
-
-                if len(insert_list) > 0:
-                    self.database.batch_insert(table_name, insert_list)
+                BatchService().lines(lines, number, rules, chunk)
 
     def create_tables(self):
-
+        print(self.configs)
         for config in self.configs:
             dsn = {
                 'host': config['host'],
@@ -74,36 +64,4 @@ class Center(object):
 
                 self.database.create_table(table_name, table_fields)
 
-    @staticmethod
-    def custom_data_handle(_func, **kwargs):
-        if funcs.get(_func, None) is None:
-            raise Exception('func is not define')
-        if not kwargs:
-            res = funcs[_func]()
-        else:
-            res = funcs[_func](**kwargs)
-        return res
-
-    @staticmethod
-    def faker_data_handle(_func, **kwargs):
-        if not hasattr(fake, _func):
-            raise Exception('faker module not have this function')
-        if not kwargs:
-            res = getattr(fake, _func)()
-        else:
-            res = getattr(fake, _func)(**kwargs)
-        return res
-
-    def faker(self, rules):
-        data = {}
-
-        for k, v in rules.items():
-            copy_value = copy.deepcopy(v)
-            _func = copy_value.pop('func')
-            if 'faker' in _func:
-                insert_value = self.faker_data_handle(_func, **copy_value)
-            else:
-                insert_value = self.custom_data_handle(_func, **copy_value)
-            data[k] = insert_value
-
-        return data
+            Context().set(self.rules, Const.CLASS_VAR_RULES)

@@ -6,7 +6,7 @@
   dbname: faker
   tables:
     - table: news
-      flag: 1
+      flag: 1-news
       fields:
         id: INT NOT NULL AUTO_INCREMENT
         created_at: datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间'
@@ -18,9 +18,14 @@
           - ENGINE=InnoDB
           - DEFAULT
           - CHARSET=utf8mb4
+      rules:
+        id:
+          func: id_auto_increment
+          database: faker
+          table: news
 
     - table: news_content
-      flag: 2
+      flag: 2-news_content
       fields:
         id: int NOT NULL AUTO_INCREMENT
         news_id: int NOT NULL COMMENT '新闻关联id'
@@ -40,7 +45,24 @@
 
       rules:
         news_id:
-          func: default
-          value: 1
+          func: cell_conversion
+          flag: 1-news
+          name: id
+        name:
+          func: faker|name
+        img:
+          func: default_random
+          array:
+            - uploads/Ey3753aMp6lTxGZPnTMPx84xVlIPrb35RIBCV7Ny.jpg
+            - uploads/Ey3753aMp6lTxGZPnTMPx84xVlIPrb35RIBCV7Ny.jpg
+
+        content:
+          func: date_range
+          start: 2021-05-01
+          end: 2021-05-31
+          res_format: '%Y-%m-%d'
+          step: DAY_TO_SECOND
+
+      lines: [ 1-news, 2-news_content ]
       number: 10
       chunk: 1

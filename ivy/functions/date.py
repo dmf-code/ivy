@@ -29,6 +29,12 @@ class Date(object):
         step = self.handle_time(kwargs.get('step', Const().DAY_TO_SECOND))
         if start is None or end is None:
             raise Exception('start or end is None')
+        if isinstance(start, datetime.date):
+            start = start.__str__()
+
+        if isinstance(end, datetime.date):
+            end = end.__str__()
+
         start_time = self.parse_stamp(time.strptime(start, start_format))
         end_time = self.parse_stamp(time.strptime(end, end_format))
         res_time = random.randrange(start_time, end_time + step, step)

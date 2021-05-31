@@ -93,3 +93,17 @@ class Database(metaclass=Singleton):
             dataset
         )
         session.commit()
+
+    def get_auto_increment(self, database, table):
+        self.create_session()
+        session = self.get_session()
+        row = session.execute(
+            "SELECT " +
+            "if(max(id), max(id), 0) AS id" +
+            " from {}.{}".format(database, table)
+        )
+        session.commit()
+        pk_id = row.fetchone()[0]
+        if pk_id > 0:
+            pk_id = pk_id + 1
+        return pk_id
